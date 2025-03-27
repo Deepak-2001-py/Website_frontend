@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configuration
     const CONFIG = {
         API: {
-            API_ENDPOINT: 'https://rus9nultj9.execute-api.eu-north-1.amazonaws.com/dev/uploadpdf',
-            GRADES_ENDPOINT: 'https://rus9nultj9.execute-api.eu-north-1.amazonaws.com/dev/getgrades'
+            API_ENDPOINT: '',
+            GRADES_ENDPOINT: ''
         },
         UPLOAD: {
             MAX_FILE_SIZE_MB: 10,

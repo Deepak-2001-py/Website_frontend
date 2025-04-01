@@ -1,260 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="GradeAnt: AI-Powered Homework Grader for students and teachers" />
-  <title>GradeAnt: AI-Powered Homework Grader</title>
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="newstyles.css" />
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Homework Grader | Grade Assignments Instantly</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-container">
-      <div class="brand">
-        <img src="favicon-32x32.png" alt="GradeAnt Logo" class="logo" />
-        <h1>GradeAnt</h1>
-      </div>
-      <p class="tagline">AI-Powered Homework Grader</p>
-    </div>
-  </header>
-  
-  <main class="main-content">
+  <!-- Navbar (Centered Logo) -->
+  <nav>
     <div class="container">
-      <!-- Primary Navigation -->
-      <nav class="primary-nav" aria-label="Primary Navigation">
-        <ul class="nav-tabs" role="tablist">
-          <li role="presentation">
-            <button class="tab-btn active" id="upload-tab-btn" data-tab="upload-section" role="tab" aria-selected="true" aria-controls="upload-section">
-              <i class="fas fa-upload"></i> Upload Assignment
-            </button>
-          </li>
-          <li role="presentation">
-            <button class="tab-btn" id="grades-tab-btn" data-tab="grades-section" role="tab" aria-selected="false" aria-controls="grades-section">
-              <i class="fas fa-chart-bar"></i> View Grades
-            </button>
-          </li>
-        </ul>
-      </nav>
-
-      <!-- Upload Assignment Section -->
-      <section id="upload-section" class="tab-content active" role="tabpanel" aria-labelledby="upload-tab-btn">
-        <div class="card">
-          <div class="card-header">
-            <h2><i class="fas fa-file-upload"></i> Upload Assignment</h2>
-            <p>Submit your assignment files in PDF format.</p>
-          </div>
-          <div class="card-body">
-            <form id="upload-form" class="form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="upload-type">Upload Type</label>
-                  <select id="upload-type" class="form-control" required>
-                    <option value="">Select Upload Type</option>
-                    <option value="student">Student Assignment</option>
-                    <option value="teacher">Teacher Question Paper</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="assignment-id">Assignment ID</label>
-                  <input type="text" id="assignment-id" class="form-control" placeholder="e.g. assignment456" required />
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="course-id">Course ID (Optional)</label>
-                <input type="text" id="course-id" class="form-control" placeholder="e.g. physics_101" />
-              </div>
-              <div class="file-upload">
-                <label for="file-input" class="file-upload-label">
-                  <i class="fas fa-cloud-upload-alt"></i>
-                  <span>Choose Files or Drag & Drop</span>
-                </label>
-                <input type="file" id="file-input" class="file-input" accept=".pdf" multiple />
-              </div>
-              <div class="file-list-container">
-                <ul id="file-list" class="file-list"></ul>
-              </div>
-              <div class="progress-container" aria-live="polite" style="display:none;">
-                <div class="progress">
-                  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <p class="progress-text">0%</p>
-              </div>
-              <div id="alert-container" aria-live="assertive"></div>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-upload"></i> Upload Files
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-
-    <!-- View Grades Section -->
-    <section id="grades-section" class="tab-content" role="tabpanel" aria-labelledby="grades-tab-btn">
-      <div class="card">
-        <div class="card-header">
-          <h2><i class="fas fa-chart-bar"></i> View Grades</h2>
-        </div>
-        <div class="card-body">
-          <!-- Secondary Navigation -->
-          <nav class="secondary-nav" aria-label="User Type Navigation">
-            <ul class="nav-tabs" role="tablist">
-              <li role="presentation">
-                <button class="tab-btn active" id="student-view-btn" data-tab="student-view" role="tab" aria-selected="true" aria-controls="student-view">
-                  <i class="fas fa-user-graduate"></i> Student View
-                </button>
-              </li>
-              <li role="presentation">
-                <button class="tab-btn" id="teacher-view-btn" data-tab="teacher-view" role="tab" aria-selected="false" aria-controls="teacher-view">
-                  <i class="fas fa-chalkboard-teacher"></i> Teacher View
-                </button>
-              </li>
-            </ul>
-          </nav>
-        <!-- Student View Section -->
-        <div id="student-view" class="sub-tab-content active">
-          <h3>View Your Assignment Grades</h3>
-
-          <!-- Student Input Form -->
-          <form id="student-grade-form" class="form">
-              <div class="form-row">
-                  <div class="form-group">
-                      <label for="student-id">Student ID</label>
-                      <input type="text" id="student-id" class="form-control" placeholder="Enter your student ID" required />
-                  </div>
-                  <div class="form-group">
-                      <label for="assignment-id-student">Assignment ID</label>
-                      <input type="text" id="assignment-id-student" class="form-control" placeholder="Enter assignment ID" required />
-                  </div>
-              </div>
-              <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">View Grades</button>
-              </div>
-          </form>
-
-          <!-- Loader (Hidden by Default) -->
-          <div class="loader-container" id="student-loader-container">
-              <div class="loader" id="student-loader"></div>
-          </div>
-
-          <!-- Results Section -->
-          <div class="result-container" id="student-result">
-              <!-- Summary Table -->
-              <h4>Your Assignment Summary</h4>
-              <table id="summary-table">
-                  <thead>
-                      <tr>
-                          <th>Student ID</th>
-                          <th>Assignment ID</th>
-                          <th>Total Marks</th>
-                          <th>Evaluation ID</th>
-                          <th>QP ID</th>
-                          <th>Date</th>
-                      </tr>
-                  </thead>
-                  <tbody id="summary-body"></tbody>
-              </table>
-
-              <!-- Question Breakdown -->
-              <h4>Question Breakdown</h4>
-              <div id="questions-container"></div>
-          </div>
-      </div>
-
-
-          <!-- Student View Tab
-          <div id="student-view" class="sub-tab-content active" role="tabpanel" aria-labelledby="student-view-btn">
-            <h3>View Your Assignment Grades</h3>
-            <form id="student-grade-form" class="form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="student-id">Student ID</label>
-                  <input type="text" id="student-id" class="form-control" placeholder="Enter your student ID" required />
-                </div>
-                <div class="form-group">
-                  <label for="assignment-id-student">Assignment ID</label>
-                  <input type="text" id="assignment-id-student" class="form-control" placeholder="Enter assignment ID" required />
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-search"></i> View Grades
-                </button>
-              </div>
-            </form>
-            <div class="loader-container">
-              <div class="loader" id="student-loader" aria-hidden="true"></div>
-            </div>
-            <div class="result-container" id="student-result" aria-live="polite"></div>
-          </div> -->
-
-          <!-- Teacher View Tab -->
-          <div id="teacher-view" class="sub-tab-content" role="tabpanel" aria-labelledby="teacher-view-btn" aria-hidden="true" style="display: none;">
-            <h3>All Student Grades</h3>
-            <form id="teacher-grade-form" class="form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="qp-id">Question Paper ID</label>
-                  <input type="text" id="qp-id" class="form-control" placeholder="Enter question paper ID" required />
-                </div>
-                <div class="form-group">
-                  <label for="assignment-id-teacher">Assignment ID</label>
-                  <input type="text" id="assignment-id-teacher" class="form-control" placeholder="Enter assignment ID" required />
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-download"></i> Fetch All Grades
-                </button>
-              </div>
-            </form>
-            <div class="loader-container">
-              <div class="loader" id="teacher-loader" aria-hidden="true"></div>
-            </div>
-            <div class="result-container" id="teacher-result">
-              <h4>Student Grades Summary</h4>
-              <div class="table-responsive">
-                <table id="students-table" class="data-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Evaluation ID</th>
-                      <th scope="col">Student ID</th>
-                      <th scope="col">QP-ID</th>
-                      <th scope="col">Total Marks</th>
-                      <th scope="col">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody id="students-list"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
+      <a href="#" class="logo-container">
+        <img src="img\Designer.jpeg" alt="AI Grader Logo" class="logo-image">
+        <h1 class="logo">Grade<span>Ant</span></h1>
+      </a>
     </div>
-  </main>
+  </nav>
 
-  <footer class="site-footer">
+<!-- Hero Section -->
+  <section class="hero">
     <div class="container">
-      <p>&copy; 2025 GradeAnt. All rights reserved.</p>
+      <div class="hero-text">
+        <h1>The Future of STEM Grading is Here: GradeAnt!</h1>
+        <p> Evaluate assignments with personalized rubrics, detailed insights, and effortless handwritten recognition.</p>
+      </div>
+      <div class="hero-image">
+        <div class="slideshow-container">
+          <img src="img\Designer (1).jpeg" alt="AI Grading Demo 1" class="demo-img" >
+          <img src="img\Designer (3).png" alt="AI Grading Demo 2" class="demo-img" >
+          <img src="img\Designer.png" alt="AI Grading Demo 3" class="demo-img">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <h2>Transform Your STEM Grading Workflow</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <h3>Instant Feedback</h3>
+          <p>AI analyzes and grades assignments in seconds.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔎</div>
+          <h3>Rich, Actionable Insights</h3>
+          <p>Provides comprehensive feedback, pinpointing errors and suggesting improvements.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✍️</div>
+          <h3>Conquer Handwritten Chaos</h3>
+          <p>Effortlessly grades freeform handwritten answersheets with ease.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🎯</div>
+          <h3>AI-Powered Precision</h3>
+          <p>GradeFlow™ model analyzes STEM subjects with unmatched accuracy</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⚙️</div>
+          <h3>Grade Your Way</h3>
+          <p>Customize grading with specific rubrics, question papers, and teacher personas.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⏱️</div>
+          <h3>Save Time</h3>
+          <p>No more manual grading—focus on teaching!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Orange CTA -->
+  <section class="interactive-cta">
+    <div class="container">
+      <button class="cta-button pulse" id="getStartedButton">
+        Get Started <span>→</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-number">1</span>
+          <p>Upload a PDF homework file.</p>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <p>AI grades it automatically.</p>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <p>View detailed results!</p>
+        </div>
+        <div class="step">
+          <span class="step-number">4</span>
+          <p>Get Feedback for each question</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- Simple Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2025 AI Grader. Powered by GradeAnt.</p>
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <!-- Make sure that "scripts.js" includes the updated file upload and grade retrieval functions -->
-  <!-- <script src="script.js"></script> -->
-  <script src="script.js"></script>
+  <!-- For Key etc. -->
+
+  <script>
+    document.getElementById('getStartedButton').addEventListener('click', function() {
+      const correctKey = "1234"; // Replace with your actual key
+      const enteredKey = prompt("Please enter the key to proceed:");
+
+      if (enteredKey === correctKey) {
+        window.location.href = 'app.html';
+      } else if (enteredKey !== null) {
+        alert("Incorrect key. Access denied.");
+      }
+      // If the user cancels the prompt (enteredKey is null), do nothing.
+    });
+  </script>
 </body>
 </html>

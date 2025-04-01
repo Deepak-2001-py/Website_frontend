@@ -675,7 +675,7 @@ TabManager.init();
             teacherResultContainer.style.display = "block";
         }
         
-        function displaySigleStudentSummary(data, assignmentId) {
+         function displaySigleStudentSummary(data, assignmentId) {
             const summaryBody = document.getElementById("summary-body");
             const teacherResultContainer = document.getElementById("student-result");
             
@@ -704,48 +704,420 @@ TabManager.init();
                 UIManager.showAlert("No summary available", "danger");
                 return;
             }
-            // Create a function to render LaTeX if MathJax is available
-            const renderLatex = (text) => {
-                const tempDiv = document.createElement('div');
-                tempDiv.textContent = text;
-                
-                // If MathJax is available, process the LaTeX
-                if (window.MathJax) {
-                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, tempDiv]);
-                }
-                
-                return tempDiv.innerHTML;
-            };
         
-            result.details.forEach((question) => {
+            result.summary.forEach((grade) => {
+                const row = document.createElement("tr");
+                const dateStr = grade.timestamp ? new Date(grade.timestamp * 1000).toLocaleString() : 'N/A';
+                row.innerHTML = `
+                <td>${grade.student_id || 'N/A'}</td>
+                <td>${grade.assignment_id || 'N/A'}</td>
+                <td>${grade.total_marks !== undefined && grade.total_marks !== null ? grade.total_marks : 'N/A'}</td>
+                <td>${grade.evaluation_id || 'N/A'}</td>
+                <td>${grade.qp_id || 'N/A'}</td>
+                <td>${dateStr}</td>
+                `;
+                summaryBody.appendChild(row);
+            });
+            teacherResultContainer.style.display = "block";
+        }
+        
+        function configureMathJax() {
+            if (window.MathJax) {
+                // Reset MathJax if it's already loaded (to update configuration)
+                if (typeof MathJax.Hub.Config === 'function') {
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [['$', '$'], ['\\(', '\\)']],
+                            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                            processEscapes: true,
+                            processEnvironments: true,
+                            processRefs: true,
+                            skipTags: ["script", "noscript", "style", "textarea"]
+                        },
+                        TeX: {
+                            equationNumbers: { autoNumber: "AMS" },
+                            extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js", "mhchem.js"],
+                            Macros: {
+                                textbf: ["\\boldsymbol{#1}", 1],
+                                R: '\\mathbb{R}',
+                                N: '\\mathbb{N}',
+                                Z: '\\mathbb{Z}'
+                            }
+                        },
+                        CommonHTML: { 
+                            linebreaks: { automatic: true },
+                            scale: 100,
+                            minScaleAdjust: 95,
+                            matchFontHeight: true,
+                            mtextFontInherit: true
+                        },
+                        "HTML-CSS": { 
+                            linebreaks: { automatic: true },
+                            scale: 100,
+                            availableFonts: ["STIX", "TeX"],
+                            preferredFont: "TeX",
+                            webFont: "TeX",
+                            matchFontHeight: true,
+                            mtextFontInherit: true
+                        },
+                        SVG: { 
+                            linebreaks: { automatic: true },
+                            font: "TeX",
+                            mtextFontInherit: true
+                        },
+                        messageStyle: "none",
+                        showMathMenu: false,
+                        showProcessingMessages: false
+                    });
+                    return;
+                }
+            }
+            
+            // Initial MathJax configuration
+            window.MathJax = {
+                tex2jax: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true,
+                    processEnvironments: true,
+                    processRefs: true,
+                    skipTags: ["script", "noscript", "style", "textarea"]
+                },
+                TeX: {
+                    equationNumbers: { autoNumber: "AMS" },
+                    extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js", "mhchem.js"],
+                    Macros: {
+                        textbf: ["\\boldsymbol{#1}", 1],
+                        R: '\\mathbb{R}',
+                        N: '\\mathbb{N}',
+                        Z: '\\mathbb{Z}'
+                    }
+                },
+                CommonHTML: { 
+                    linebreaks: { automatic: true },
+                    scale: 100,
+                    minScaleAdjust: 95,
+                    matchFontHeight: true,
+                    mtextFontInherit: true
+                },
+                "HTML-CSS": { 
+                    linebreaks: { automatic: true },
+                    scale: 100,
+                    availableFonts: ["STIX", "TeX"],
+                    preferredFont: "TeX",
+                    webFont: "TeX",
+                    matchFontHeight: true,
+                    mtextFontInherit: true
+                },
+                SVG: { 
+                    linebreaks: { automatic: true },
+                    font: "TeX",
+                    mtextFontInherit: true
+                },
+                messageStyle: "none",
+                showMathMenu: false,
+                showProcessingMessages: false
+            };
+            
+            // Load MathJax
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML';
+            script.async = true;
+            
+            script.onload = function() {
+                console.log("MathJax loaded successfully");
+            };
+            
+            script.onerror = function() {
+                console.error("Failed to load MathJax");
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // Enhanced LaTeX content preparation
+        function prepareLaTeXContent(content) {
+            if (!content) return '';
+            
+            // Pre-process LaTeX content for proper display
+            
+            // First, protect content that's already in math mode
+            const mathBlocks = [];
+            let index = 0;
+            
+            // Store display math blocks
+            content = content.replace(/\$\$(.*?)\$\$/g, function(match) {
+                const placeholder = `__MATHBLOCK${index}__`;
+                mathBlocks[index] = match;
+                index++;
+                return placeholder;
+            });
+            
+            // Store inline math blocks
+            content = content.replace(/\$(.*?)\$/g, function(match) {
+                const placeholder = `__MATHBLOCK${index}__`;
+                mathBlocks[index] = match;
+                index++;
+                return placeholder;
+            });
+            
+            // Common LaTeX text commands
+            content = content.replace(/\\textbf{([^}]*)}/g, '<strong>$1</strong>');
+            content = content.replace(/\\emph{([^}]*)}/g, '<em>$1</em>');
+            content = content.replace(/\\textit{([^}]*)}/g, '<em>$1</em>');
+            content = content.replace(/\\underline{([^}]*)}/g, '<u>$1</u>');
+            
+            // Handle special LaTeX spacing commands
+            content = content.replace(/\\quad/g, '<span class="latex-quad"></span>');
+            content = content.replace(/\\qquad/g, '<span class="latex-qquad"></span>');
+            content = content.replace(/\\;/g, '<span class="latex-thickspace"></span>');
+            content = content.replace(/\\:/g, '<span class="latex-medspace"></span>');
+            content = content.replace(/\\,/g, '<span class="latex-thinspace"></span>');
+            
+            // Handle \text{} command - BUT only when not already inside math mode
+            content = content.replace(/\\text{([^}]*)}/g, (match, innerText) => {
+                // Check if this is likely part of a formula
+                if (innerText.match(/[+\-=<>*\/]/)) {
+                    // It's probably in a formula, so preserve it
+                    return match;
+                }
+                // Otherwise, it's a text element
+                return `<span class="latex-text">${innerText}</span>`;
+            });
+            
+            // Process special characters
+            content = content.replace(/\\%/g, '%');
+            content = content.replace(/\\_/g, '_');
+            content = content.replace(/\\&/g, '&');
+            content = content.replace(/\\#/g, '#');
+            content = content.replace(/\\\$/g, '$');
+            
+            // Process line breaks
+            content = content.replace(/\\\\(?!\$)/g, '<br>');
+            content = content.replace(/\n\n/g, '<p></p>');
+            
+            // Handle LaTeX paragraphs spacing
+            content = content.replace(/\\par/g, '<p></p>');
+            
+            // Restore math blocks
+            for (let i = 0; i < mathBlocks.length; i++) {
+                content = content.replace(`__MATHBLOCK${i}__`, mathBlocks[i]);
+            }
+            
+            // Add any math that might need to be detected (formulas not in $ delimiters)
+            // Look for common LaTeX commands and wrap them in $ if not already
+            const mathCommands = [
+                '\\alpha', '\\beta', '\\gamma', '\\delta', '\\epsilon', '\\zeta', 
+                '\\eta', '\\theta', '\\iota', '\\kappa', '\\lambda', '\\mu', 
+                '\\nu', '\\xi', '\\pi', '\\rho', '\\sigma', '\\tau', 
+                '\\upsilon', '\\phi', '\\chi', '\\psi', '\\omega',
+                '\\sum', '\\prod', '\\int', '\\frac', '\\sqrt', '\\lim',
+                '\\infty', '\\nabla', '\\partial', '\\Delta', '\\Phi',
+                '\\begin{array}', '\\begin{matrix}', '\\begin{pmatrix}',
+                '\\begin{bmatrix}', '\\begin{vmatrix}', '\\begin{cases}'
+            ];
+            
+            // Regular expression to match any command not inside $ delimiters
+            const commandPattern = new RegExp(`([^$])(${mathCommands.join('|')})([^$])`, 'g');
+            content = content.replace(commandPattern, '$1$$$2$$$3');
+            
+            // Clean up any double or triple $ that might have been created
+            content = content.replace(/\${2,}/g, '$');
+            
+            return content;
+        }
+        
+        // Function to display LaTeX content with proper handling
+        function displayLaTeXContent(elementId, laTeXContent) {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                console.error(`Element with ID ${elementId} not found`);
+                return;
+            }
+            
+            // Ensure MathJax is configured
+            configureMathJax();
+            
+            // Prepare and set content
+            const preparedContent = prepareLaTeXContent(laTeXContent);
+            element.innerHTML = preparedContent;
+            
+            // Render with MathJax
+            if (window.MathJax) {
+                if (typeof MathJax.Hub.Queue === 'function') {
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
+                }
+            }
+        }
+        
+        // Example usage in displayDetails function
+
+        function displayDetails(data, assignmentId) {
+            const questionsContainer = document.getElementById('questions-container');
+            
+            if (!questionsContainer) {
+                console.error("Questions container not found");
+                return;
+            }
+            
+            questionsContainer.innerHTML = ''; // Clear previous content
+            
+            // Ensure MathJax is properly configured 
+            configureMathJax();
+            
+            let result;
+            if (data && data.body) {
+                try {
+                    result = JSON.parse(data.body);
+                } catch (error) {
+                    console.error("Parse error:", error);
+                    UIManager.showAlert("Failed to parse data", "danger");
+                    return;
+                }
+            } else {
+                UIManager.showAlert("Invalid response from server", "danger");
+                return;
+            }
+        
+            if (!result.details || !Array.isArray(result.details)) {
+                UIManager.showAlert("No details available", "danger");
+                return;
+            }
+        
+            result.details.forEach((question, index) => {
                 const questionCard = document.createElement('div');
                 questionCard.className = 'question-card';
+                
+                const questionNumber = question.question_number || 'Unknown';
+                const subpart = question.subpart ? `(${question.subpart})` : '';
+                const questionText = question.question || 'Question not available';
+                const marks = question.marks || 0;
+                const maxMarks = question.max_marks || 0;
+                const studentAnswer = question.student_answer || 'No answer provided';
+                const feedback = question.feedback || 'No additional reasoning provided';
+                
+                // Create unique IDs for each section to target with MathJax
+                const questionId = `latex-question-${index}`;
+                const answerId = `latex-answer-${index}`;
+                const feedbackId = `latex-feedback-${index}`;
+                
                 questionCard.innerHTML = `
-                <h3>Question ${question.question_number} ${question.subpart ? `(${question.subpart})` : ''}</h3>
-                <p class="question-text">${renderLatex(question.question || 'Question not available')}</p>
+                <h3>Question ${questionNumber} ${subpart}</h3>
+                <div id="${questionId}" class="question-text latex-content"></div>
                 <div class="marks-info">
-                    <span>Marks: <span class="obtained">${question.marks || 0}</span> / <span class="max">${question.max_marks || 0}</span></span>
+                    <span>Marks: <span class="obtained">${marks}</span> / <span class="max">${maxMarks}</span></span>
                 </div>
                 <div class="answer-section">
                     <h4>Your Answer:</h4>
-                    <p>${renderLatex(question.student_answer || 'No answer provided')}</p>
+                    <div id="${answerId}" class="latex-content"></div>
                 </div>
-                <div class="reasoning-section">
+                <div class="reasoning-section latex-box">
                     <h4>Feedback:</h4>
-                    <p>${renderLatex(question.feedback || 'No additional reasoning provided')}</p>
+                    <div id="${feedbackId}" class="latex-content"></div>
                 </div>
                 `;
+                
                 questionsContainer.appendChild(questionCard);
+                
+                // Set and render LaTeX content for each section
+                displayLaTeXContent(questionId, questionText);
+                displayLaTeXContent(answerId, studentAnswer);
+                displayLaTeXContent(feedbackId, feedback);
             });
-        
-// Ensure MathJax is loaded and configured
-if (!window.MathJax) {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML';
-    script.async = true;
-    document.head.appendChild(script);
-}
         }
+        
+        // Add enhanced CSS for LaTeX display
+        const style = document.createElement('style');
+        style.textContent = `
+            .latex-box {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 15px;
+                margin-top: 10px;
+                background-color: #f9f9f9;
+                overflow-x: auto;
+            }
+            
+            .latex-content {
+                font-family: 'Times New Roman', Times, serif;
+                line-height: 1.5;
+                padding: 5px;
+            }
+            
+            .latex-text {
+                font-family: 'Times New Roman', Times, serif;
+            }
+            
+            /* LaTeX spacing elements */
+            .latex-quad {
+                display: inline-block;
+                width: 1em;
+            }
+            
+            .latex-qquad {
+                display: inline-block;
+                width: 2em;
+            }
+            
+            .latex-thinspace {
+                display: inline-block;
+                width: 0.16667em;
+            }
+            
+            .latex-medspace {
+                display: inline-block;
+                width: 0.22222em;
+            }
+            
+            .latex-thickspace {
+                display: inline-block;
+                width: 0.27778em;
+            }
+            
+            .question-card {
+                margin-bottom: 25px;
+                padding: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            .marks-info {
+                margin: 10px 0;
+                font-weight: bold;
+            }
+            
+            .obtained {
+                color: #2a6099;
+            }
+            
+            .max {
+                color: #666;
+            }
+            
+            /* Style for mathematical expressions */
+            .MathJax {
+                font-size: 1.1em !important;
+            }
+            
+            /* Special styling for equations */
+            .MathJax_Display {
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            
+            /* Physics unit spacing */
+            .unit-space {
+                margin-left: 0.1667em;
+            }
+            
+            /* Ensure proper spacing in feedback sections */
+            .latex-content strong {
+                font-weight: bold;
+                margin-right: 0.3em;
+            }
+        `;
+        document.head.appendChild(style);
         
     });
     
